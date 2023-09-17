@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Firebase configuration
-    var firebaseConfig = {
+    const firebaseConfig = {
+        
         apiKey: "AIzaSyApECQvbuNdd1FH8S7SEPc6--j06F5jpqQ",
         authDomain: "sahayak-3f529.firebaseapp.com",
         databaseURL: "https://sahayak-3f529-default-rtdb.firebaseio.com",
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         measurementId: "G-2G3CM84BWC"
     };
 
-    // Initialize Firebase
+    
     firebase.initializeApp(firebaseConfig);
 
     var dataRef = firebase.database().ref('databasepage');
@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var field = data.field;
                 var task = data.task;
                 var stat = data.stat;
+                var finishTime = data.finishTime || ''; // Get finishTime or set it to an empty string if not available
 
                 // Create a table row for each data entry
                 var tableRow = document.createElement('tr');
@@ -40,13 +41,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${field}</td>
                     <td>${task}</td>
                     <td>${stat}</td>
+                    <td>${finishTime}</td>
                     <td><input type="checkbox" class="edit-checkbox"></td>
                 `;
 
                 // Append the row to the table body
                 tableBody.appendChild(tableRow);
 
-                // Add an event listener for the checkbox to toggle status
+                // Add an event listener for the checkbox to toggle status and update finishTime
                 tableRow.querySelector('.edit-checkbox').addEventListener('change', function() {
                     // Get the current status
                     var currentStatus = stat;
@@ -54,14 +56,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Toggle the status
                     var newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
 
-                    // Update the status in the Firebase database
-                    childSnapshot.ref.update({ stat: newStatus })
+                    // Update the finishTime with the current time
+                    var currentTime = new Date().toLocaleString();
+
+                    // Update the status and finishTime in the Firebase database
+                     childSnapshot.ref.update({ stat: newStatus, finishTime: currentTime })
                         .then(function() {
-                            // Update the displayed status
+                            // Update the displayed status and finishTime
                             stat = newStatus;
+                            finishTime = currentTime;
                         })
                         .catch(function(error) {
-                            console.error("Error updating status: " + error);
+                            console.error("Error updating status and finishTime: " + error);
                         });
                 });
 
